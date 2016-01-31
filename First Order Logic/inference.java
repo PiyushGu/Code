@@ -8,8 +8,6 @@ import java.util.regex.Pattern;
 
 public class inference {
 
-
-
 	static int NumOfQ = 0;
 	static int currentQuery = 0;
 	public static void main(String args[]) throws FileNotFoundException{
@@ -19,29 +17,14 @@ public class inference {
 		try
 		{
 			String fileName = "input.txt";
-			//boolean[] result = new boolean[10];
-			boolean[] result = backwardChainingAlorithm(fileName,printer);
-
-
-
-			/* for(boolean ans : result)
-		    {
-		    	if(ans)
-		    		printer.println("TRUE");
-		    	else
-		    		printer.println("FALSE");
-		    }*/
-			// String fileName = "input.txt";
+			
+		    backwardChainingAlorithm(fileName,printer);
 			printer.close();
 		}
 		catch(Exception e)
 		{
-			//for(int coun = currentQuery ; coun< NumOfQ ; coun++)
-			//{
 			printer.println("FALSE");
-			//}
-
-			//printer.close();
+			
 		}
 	}
 
@@ -58,24 +41,12 @@ public class inference {
 
 		//read queries from input file
 		int numOfQueries = Integer.parseInt(sc.nextLine());
-		NumOfQ = numOfQueries;
 		List<predicate> queries = GetQueries(numOfQueries, sc);	
 		CheckIfInt(numOfQueries);
 		//read knowledge base from input file
 		int kbSize = Integer.parseInt(sc.nextLine());
 		knowledgeBase kb = new knowledgeBase();	
-		IsKnowledgeBase(kb);
 		UpdateKnowledgeBase(kb,kbSize,sc);
-		if(kb != null)
-		{
-			for(Integer key : kb.conclusions.keySet())
-			{
-				int count1213 = 0;
-				count1213 += key;
-				CheckIfInt(count1213);
-
-			}
-		}
 		sc.close();
 
 		boolean[] result = new boolean[numOfQueries];
@@ -83,15 +54,13 @@ public class inference {
 		for(int count = 0;count< queries.size(); count ++)
 		{
 			try{
-				currentQuery = count;
 				LinkedHashMap<variable,argument> theta = new LinkedHashMap<variable,argument>();
 				List<predicate> exitCondition = new ArrayList<predicate>();
 				predicate currentQuery = queries.get(count);
-				boolean isTrue = false;
 
 
 				List<Map<variable, argument>> variables = 
-						backwardChainingOr(kb,currentQuery, theta, exitCondition,isTrue,true,1);
+						backwardChainingOr(kb,currentQuery, theta, exitCondition);
 				if(variables.isEmpty())
 				{
 					result[count] = false;
@@ -113,27 +82,16 @@ public class inference {
 		return result;
 	}
 
-	private static boolean IsKnowledgeBase(knowledgeBase kb) {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-
 	private static List<Map<variable, argument>> backwardChainingOr(
 			knowledgeBase kb, predicate currentQuery,
 			Map<variable, argument> theta,
-			List<predicate> exitCondition,boolean isTrue,boolean isLoop,int num) 
+			List<predicate> exitCondition) 
 			{
 		// TODO Auto-generated method stub
-
-
 
 		List<Map<variable, argument>> substitutionLst = new ArrayList<Map<variable, argument>>();
 
 		predicate goal =  currentQuery;
-
-		CheckIfTheArgIsPredicate(currentQuery, true);
-
 		predicate predicateCopy = GetPredicateCopy(goal,theta);
 		//predicateCopy = SubstituteThetaInQuery(predicateCopy,theta);
 
@@ -202,9 +160,6 @@ public class inference {
 			}
 
 		}
-		isTrue = true;
-		isLoop = false;
-
 		if(kb !=null && kb.conclusions != null && kb.conclusions.isEmpty())
 		{
 			int counter12 = 0;
@@ -393,8 +348,6 @@ public class inference {
 
 			predicate first = predicatList.get(0);
 
-			CheckIfTheArgIsPredicate(first, false);
-
 			predicate predicateCopy = GetPredicateCopy(first, thetaDelta);
 
 			Wrapper wrapper = SubstituteThetaInQuery(predicateCopy,thetaDelta,true);
@@ -412,27 +365,13 @@ public class inference {
 
 			List<predicate> rest = predicatList.subList(1, predicatList.size());
 
-			List<predicate> copy123 = new ArrayList<predicate>();
-
-			if(kb !=null && kb.conclusions != null && kb.conclusions.isEmpty())
-			{
-				int counter12123 = 0;
-				for(Integer key : kb.conclusions.keySet())
-				{
-
-					counter12123 += key;
-					CheckIfInt(counter12123);
-				}
-			}
-
 			Map<variable, argument> thetaDel3 = TrimCharac(thetaDelta,predicateCopy.sentenceNumber,1,new Wrapper());
 
 
 			List<Map<variable, argument>> substitutionList1 = backwardChainingOr
 					(kb, predicateCopy, thetaDel3,
-							goalarry,true,false,1);					
+							goalarry);					
 
-			IsTheta(thetaDel3);
 			if(substitutionList1 != null)
 			{
 				for (Map<variable, argument> theta1 : substitutionList1) 
@@ -455,18 +394,9 @@ public class inference {
 			}
 
 		}
-		IsTheta(thetaDelta);
 		return substitutionList;
 
 	}
-
-
-
-	private static boolean IsTheta(Map<variable, argument> thetaDel3) {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
 
 	private static Wrapper SubstituteThetaInQuery(
 			predicate query, Map<variable, argument> thetaDelta,boolean toSubstitue) {
