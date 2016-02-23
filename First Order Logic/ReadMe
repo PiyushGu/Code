@@ -1,0 +1,2 @@
+The project is to infer the truth of the statement using Back ward tracking method of First Order Logic.
+Input to the program is text file which is used to build the knowledge based first and after knowledge base is build, the truth of the statement is evaluated
