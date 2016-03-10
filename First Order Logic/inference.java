@@ -1,4 +1,3 @@
-
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -913,6 +912,7 @@ class utility{
 		boolean isUpperCase = character >= 'A' && character <= 'Z';
 		return isUpperCase;
 	}
+	
 	static boolean isLowerCaseCharater(char character) {
 
 		boolean isLowerCase = character >= 'a' && character <= 'z';
@@ -920,6 +920,7 @@ class utility{
 	}
 }
 
+//wrapper class to pass values in between the functions
 class Wrapper
 {
 	public predicate predi;
