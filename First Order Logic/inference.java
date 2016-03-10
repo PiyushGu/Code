@@ -1,3 +1,4 @@
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -6,20 +7,19 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class inference {
+public class inference{
 
-	static int NumOfQ = 0;
-	static int currentQuery = 0;
 	public static void main(String args[]) throws FileNotFoundException{
-		//set scanner object
+		// printer to print to output file
 		PrintWriter printer = new PrintWriter("output.txt");
-		//  String fileName = args[1];
 		try
 		{
+			//file from where input is fetched
 			String fileName = "input.txt";
 			
 		    backwardChainingAlorithm(fileName,printer);
-			printer.close();
+			
+		    printer.close();
 		}
 		catch(Exception e)
 		{
@@ -28,28 +28,24 @@ public class inference {
 		}
 	}
 
-
-	//PrintStream outputFile = new PrintStream(new FileOutputStream("output.txt"));
-
 	// method to implement backward chaining algorithm
-	public static boolean[] backwardChainingAlorithm(String inputFileName,PrintWriter printer) throws FileNotFoundException
+	public static void backwardChainingAlorithm(String inputFileName,PrintWriter printer) throws FileNotFoundException
 	{
+		//setting scanner object to scan the input
 		Scanner sc = new Scanner(new BufferedReader(new FileReader(inputFileName)));
-
-		//use line separator
-		//sc.useDelimiter(System.getProperty("line.separator"));
 
 		//read queries from input file
 		int numOfQueries = Integer.parseInt(sc.nextLine());
+	    
+		//Get the queries from the input
 		List<predicate> queries = GetQueries(numOfQueries, sc);	
-		CheckIfInt(numOfQueries);
+		
 		//read knowledge base from input file
 		int kbSize = Integer.parseInt(sc.nextLine());
 		knowledgeBase kb = new knowledgeBase();	
 		UpdateKnowledgeBase(kb,kbSize,sc);
 		sc.close();
 
-		boolean[] result = new boolean[numOfQueries];
 		//parse for each query in knowledge base
 		for(int count = 0;count< queries.size(); count ++)
 		{
@@ -58,18 +54,18 @@ public class inference {
 				List<predicate> exitCondition = new ArrayList<predicate>();
 				predicate currentQuery = queries.get(count);
 
-
+				//Calling backward chaining one by one for all the queries
 				List<Map<variable, argument>> variables = 
 						backwardChainingOr(kb,currentQuery, theta, exitCondition);
+				
+				//checking if the subsitution list is empty=> means the query can't be proven from the KB
 				if(variables.isEmpty())
 				{
-					result[count] = false;
 					if(printer != null)
 						printer.println("FALSE");
 				}
 				else
 				{
-					result[count] = true;
 					if(printer != null)
 						printer.println("TRUE");
 				}	}
@@ -79,7 +75,7 @@ public class inference {
 				printer.println("FALSE");
 			}
 		}
-		return result;
+		
 	}
 
 	private static List<Map<variable, argument>> backwardChainingOr(
@@ -92,44 +88,27 @@ public class inference {
 		List<Map<variable, argument>> substitutionLst = new ArrayList<Map<variable, argument>>();
 
 		predicate goal =  currentQuery;
+		
+		//getting predicate copy from the goal
 		predicate predicateCopy = GetPredicateCopy(goal,theta);
-		//predicateCopy = SubstituteThetaInQuery(predicateCopy,theta);
-
+		
 		if (!exitCondition.contains(predicateCopy))
 			exitCondition.add(predicateCopy);
 		else
 			return null;
-
-		CheckIfTheArgIsPredicate(currentQuery,false);
-
-		//Wrapper wrapper = SubstituteThetaInQuery(goal,theta);
-
-		//currentQuery = wrapper.predi;
-
-		// theta = wrapper.tempDel;
-
-		int count12 = 0;
-		for(Integer key : kb.conclusions.keySet())
-		{
-
-			count12 += key;
-			CheckIfInt(count12);
-
-		}
+		
 		for (Integer key : kb.conclusions.keySet()) {
 			predicate p = kb.conclusions.get(key);
 
 			if (p.GetPredicateName().equals(goal.GetPredicateName())
 					&& (p.IsNegated() == goal.IsNegated())) {
+				
+				
 				List<Map<variable, argument>> tempsubstitutionList = new ArrayList<Map<variable, argument>>();
 				Map<variable, argument> thetatemp = new LinkedHashMap<>();
 
 				thetatemp.putAll(theta);
 
-
-				//thetatemp = TrimCharac(thetatemp,predicateCopy.sentenceNumber);
-
-				CopyTheta(theta); 
 				List<predicate> predicates = null;
 				for (Integer keyvalue : kb.assumptionMap.keySet()) {
 					if (keyvalue == key) {
@@ -138,12 +117,7 @@ public class inference {
 					}
 				}								
 
-				CheckIfTheArgIsPredicate(predicateCopy, true);
-				CheckIfTheArgIsPredicate(p, true);
-
 				Map<variable, argument> thetaDelta = unify(p, predicateCopy, thetatemp);
-
-
 
 				if (thetaDelta != null) {	
 
@@ -160,36 +134,11 @@ public class inference {
 			}
 
 		}
-		if(kb !=null && kb.conclusions != null && kb.conclusions.isEmpty())
-		{
-			int counter12 = 0;
-			for(Integer key : kb.conclusions.keySet())
-			{
-
-				counter12 += key;
-				CheckIfInt(counter12);
-			}
-		}
+		
 		return substitutionLst;	
 
 			}
-	private static boolean CheckIfInt(int count12) {
-		// TODO Auto-generated method stub
-
-		boolean retVal = false;
-
-		if(count12 > 0)
-			return true;
-
-		return retVal;
-
-	}
-
-
-	private static boolean CheckIfTheArgIsPredicate(predicate currentQuery, boolean b) {
-		// TODO Auto-generated method stub
-		return currentQuery instanceof predicate;
-	}
+	
 
 
 	private static Wrapper StandardizeVariable(predicate p,
@@ -293,45 +242,6 @@ public class inference {
 	}
 
 
-	private static Map<variable, argument> CopyTheta(
-			Map<variable, argument> theta) {
-		// TODO Auto-generated method stub
-		Map<variable, argument> thetatemp = new LinkedHashMap<variable, argument>();
-
-		if(theta != null)
-		{
-			for(variable keyvalue: theta.keySet())
-			{
-				variable var = new variable(keyvalue.GetValue());
-
-				argument arg = null;
-
-				argument currentArg = theta.get(keyvalue);
-
-				if(currentArg instanceof constant)
-				{
-					arg = (constant)currentArg;
-				}
-
-				else 
-					if(currentArg instanceof variable)
-					{
-						arg = new variable(((variable)currentArg).GetValue());
-					}
-
-				thetatemp.put(var, arg);
-			}
-		}
-		return thetatemp;
-
-	}
-
-
-
-
-
-
-
 	private static List<Map<variable, argument>> backwardChainingForList(knowledgeBase kb,
 			List<predicate> predicatList, Map<variable, argument> thetaDelta,
 			List<predicate> exitCondition,boolean isTrue,int num) {
@@ -427,7 +337,6 @@ public class inference {
 					int index = query.arguments.indexOf(arg);
 					query.arguments.remove(index);
 					query.arguments.add(index, thetaDelta.get(key));
-					//tempDel.put(key, thetaDelta.get(key));
 				}
 			}
 		}
@@ -908,44 +817,6 @@ class variable implements argument
 		return hashCode;
 	}
 }
-
-//class to represent premise
-//class assumption{
-//	List<predicate> predicates;	
-//	int sequenceNumber;
-//	
-//	//constructor
-//	
-//	public assumption(){
-//		
-//	}
-//	public assumption(int sequenceNum, List<predicate> predicateLst)
-//	{
-//		predicates = predicateLst;
-//		sequenceNumber = sequenceNum;
-//	}
-//	
-//	public void SetIndex(int index) {
-//		sequenceNumber = index;
-//	}
-//	
-//	public void SetPredicates(List<predicate> predicates) {
-//		
-//		this.predicates = predicates;
-//	}
-//	
-//	public int GetIndex() {
-//		return sequenceNumber;
-//	}
-//	
-//	public List<predicate> GetPredicates() {
-//		
-//		return predicates;
-//	}
-//	
-//}
-
-
 //class to represent when argument is constant
 class constant implements argument{	
 	private String constValue;
